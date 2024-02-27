@@ -1,0 +1,118 @@
+---
+title: "correlacion"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+date: "2024-02-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+#Ejercicio 1
+```{r echo=TRUE}
+library(readxl)
+data <- as.data.frame(read_excel("C:/correlacion/data.xlsx"))
+data
+```
+
+```{r}
+#Función para agregar coeficientes de correlación
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(0, 1, 0 ,1))
+  Cor <- abs(cor(x, y)) 
+  txt <- paste0(prefix, format(c(Cor, 0.123456789), digits = digits)[1])
+  if(missing(cex.cor)) {
+    cex.cor <- 0.4 / strwidth(txt)
+  }
+  text(0.5, 0.5, txt,
+       cex = 1 + cex.cor*Cor)
+}
+#Dibujamos la matriz de correlación
+pairs(data,
+      upper.panel = panel.cor, # Panel de correlación
+      lower.panel = panel.smooth) #Curvas de regresión suavizadas
+```
+
+
+#Ejercicio 2
+```{r echo=TRUE}
+cor.test(data$longitud, data$peso)
+```
+```{r warning=FALSE}
+library(correlation)
+resultados <- correlation(data)
+resultados
+```
+#Ejercicio 4
+```{r echo=TRUE}
+library(ggpubr)
+library(ggplot2)
+ggscatter(data, x = "longitud", y = "peso",
+          add = "reg.line", conf.int = TRUE,
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Longitud piezas (mm)", ylab = "Peso piezas (mg)")
+```
+#Ejercicio 5
+```{r include=FALSE}
+install.packages("corrplot", repos = "http://cran.us.r-project.org")
+```
+
+```{r }
+library(corrplot)
+corrplot(cor(data))
+```
+#Ejercicio 6
+```{r}
+distancia <- c(1.1,100.2,90.3,5.4,57.5,6.6,34.7,65.8,57.9,86.1)
+n_piezas <- c(110,2,6,98,40,94,31,5,8,10)
+dist_ncuent <- data.frame(distancia,n_piezas)
+knitr::kable(dist_ncuent)
+```
+
+#Pregunta b: calcula el coeficiente de correlación
+```{r echo=TRUE}
+correlation::correlation(dist_ncuent)
+```
+#Pregunta c: calcula el nivel de significancia
+#El coeficiente de correlación (0,92) nos indica que existe una relación lineal inversa quasiperfecta ya que se encuentra próximo a -1. los valores del intervalo de confianza del 95% muestran el intervalo (de valores) para el coeficiente de correlación [-0.98, -0.71]. atendiendo a los valores p podemos afirmar que la correlación es significativa ya que el p-value (0.001) es *inferior* al *nivel de significancia* 0.05, ya que el IC es 0.95, por lo que el nivel de significancia es de 0.05. Por tanto, resulta estadísticamente significativa.
+
+#Pregunta d: intervalo de confianza al 95% en relación con el coeficiente de correlación
+#El intervalo de confianza del 95% es de [-0.98 a -0.71].
+
+
+#Pregunta e: ¿qué intensidad y dirección presentan ambas variables?
+#Al ser un coeficiente negativo, la dirección es inversa entre ambas variables y su intensidad es de 0.92.
+
+#Pregunta f: ¿es significativa esta relación?
+#La relación es significativa ya que el nivel de significancia es inferior a 0.05. 
+
+#Pregunta g: ¿Resultaría apropiado afirmar la correlación (o no) entre variables con un tamaño muestral tan reducido (n=10)?
+#Los datos muestran que es una correlación significativa. Hemos comprobado que la correlación no se debe al azar sino que responde a una correlación lineal, que se debería mantener conforme aumente el número de muestras. 
+
+
+
