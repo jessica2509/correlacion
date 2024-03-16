@@ -1,0 +1,121 @@
+---
+title: "regresion lineal"
+author: "Jessica López"
+date: "2024-03-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+### Ejercicio 1. Si pretendiésemos explicar un suceso y/o fenómeno acontecido en el pasado ¿Podemos inferir la respuesta asociada a dichos eventos en base a los restos materiales presentes?
+Sí, pero para tener una visión completa del suceso y/o fenómeno se necesita mucha más información, obtenida a partir de las fuentes textuales, los restos animales, los restos botánicos, la climatología del momento, etc., además de los restos materiales.
+
+### Ejercicio 2. Haciendo referencia al análisis de correlación lineal de Pearson, ¿establece este algún tipo de relación causa-efecto de una variable sobre otra(s)?
+No establece ningún tipo de relación causa-efecto de una variables sobre otra, solo nos indica es la relación de intensidad y dirección que hay entre las dos variables.
+
+### Ejercicio 3. Define causalidad. Exponga algún ejemplo.
+La causalidad es la relación causa-efecto entre dos variables. 
+
+### Ejercicio 4. ¿Podrías mencionar los parámetros involucrados en la ecuación de regresión lineal?
+Los parámetros involucrados en la ecuación de regresión lineal son la pendiente y la ordenada en el origen de la recta de regresión.
+
+### Ejercicio 5. En un plano cartesiano, si afirmo que el eje ‘x’ también se denomina eje de ordenadas, ¿estoy en lo cierto?
+Es incorrecto, pues el eje "x" correspondería al eje de abcisas.
+
+### Ejercicio 6. ¿Sabrías diferenciar entre recta de regresión y plano de regresión?
+La recta de regresión muestra una línea recta que se ajusta a unos datos, mostrando la relación existente entre una variable y otra; mientras que el plano de regresión muestra la relación entre dos o más variables.
+
+### Ejercicio 7. ¿Cuáles son los supuestos (o hipótesis) del análisis de regresión lineal?
+Los supuestos del análisis de regresión lineal son la linealidad, homocedasticidad, normalidad e independencia.
+
+### Ejercicio 8. Dados los siguientes datos, calcula la recta de regresión que mejor se adapte a nuestra nube de puntos siendo “cuentas” la variable dependiente o de respuesta y “distancia” la variable independiente o explicativa.
+```{r, echo=TRUE}
+distancia <- c(1.1,100.2,90.3,5.4,57.5,6.6,34.7,65.8,57.9,86.1)
+cuentas <- c(110,2,6,98,40,94,31,5,8,10)
+datos <- data.frame(distancia, cuentas)
+recta <- lm(cuentas ~ distancia, data = datos)
+summary(recta)
+```
+### Ejercicio 9. ¿Serías capaz de interpretar el significado de los parámetros de la ecuación de regresión?
+
+### Ejercicio 10. ¿Qué implicaciones conlleva obtener un intercepto con valor ‘0’?
+Significa que tanto la variable independiente como la dependiente son 0.
+
+### Ejercicio 11. ¿Qué ponderación lleva a cabo el análisis de regresión lineal para calcular los valores de los parámetros que configuran la recta de regresión?
+Para calcular los valores de los prámetros que configuran la recta de regresión se utiliza la minimización de los errores cuadráticos.
+
+### Ejercicio 12. ¿Cuál sería el error asociado a mi modelo en la estimación del número de cuentas para un yacimiento que se encuentra a 1.1 km de la mina?
+
+```{r, echo=TRUE}
+distancia_yacimiento <- 1.1
+predicción <- predict(recta, newdata = data.frame(distancia = distancia_yacimiento))
+print(predicción)
+
+predicción_error <- predict(recta, newdata = data.frame(distancia = distancia_yacimiento), se.fit = TRUE)$se.fit
+print(predicción_error)
+```
+El error es de 9.576585.
+
+### Ejercicio 13. ¿Cómo calcularías los residuos del modelo dado los siguientes datos?
+ 
+```{r, echo=TRUE}
+cuentas_predicción <- c(6,98,40,94,31,5,8,10)
+predicciones_cuentas <- c(-6.682842, 85.520196, 28.938591, 84.216973, 53.69983, 19.924631, 28.504183, -2.121561)
+residuos <- cuentas_predicción - predicciones_cuentas
+print(residuos)
+```
+### Ejercicio 14. Con los datos residuales, verifica si se cumple (o no) el supuesto de normalidad.
+
+```{r, echo=TRUE}
+shapiro.test(residuos)
+```
+### Ejercicio 15. ¿Que 2 de conjuntos (de datos) se han de emplear en la modelización lineal? ¿Cómo llevarías a cabo la preparación de estos?
+
+```{r, echo=TRUE}
+set.seed(123)
+entretenimiento_índices <- sample(1:length(cuentas), 0.7 * length(cuentas))
+entretenimiento_datos <- datos[entretenimiento_índices,]
+datos_prueba <- datos[-entretenimiento_índices,] 
+```
+
+### Ejercicio 16. Evalúa la capacidad predictiva del modelo implementando una validación cruzada simple.
+
+```{r, echo=TRUE}
+library(caret)
+control <- trainControl(method = "cv", number = 7)
+modelo_cv <- train(cuentas ~ .,data = datos, method = "lm", trControl = control)
+print(modelo_cv)
+```
+### Ejercicio 17. Si mis coeficientes de regresión se han calculado con un intervalo de confianza del 95% ¿cuál será la probabilidad de que la correlación lineal entre los coeficientes de regresión y la variable de respuesta o explicada se deba al azar? ¿Y si tengo un nivel de significación (Alpha) de 0.01, con que Intervalo de Confianza he obtenido mis coeficientes de regresión?
+
+### Ejercicio 18. Si las estimaciones arrojadas por mi modelo lineal resultan menos precisas (mayor error) en un determinado rango de valores con respecto a otro, decimos ¿qué hay indicios de homocedasticidad o heterocedasticidad?
+Decimos que hay indicios de heterocedasticidad.
+
+### Ejercicio 19. ¿Qué medida de precisión estadística nos indica el % de variabilidad explicada de la variable dependiente por nuestro modelo lineal?
+La medida de precisión estadística que nos indica el porcentaje de variabilidad explicada de la variable dependiente por nuestro modelo lineal es el coeficiente de determinación. 
+
+### Ejercicio 20. Explica la diferencia entre una observación atípica y una observación que produzca lo que se conoce en estadística como “apalancamiento” del modelo?
+En la observación atípica podemos ver que los valores o datos se encuentran a una distancia atípica entre unos y otros. 
+Por otra parte, el apalancamiento en la observación de un modelo hace refrencia a la distancia desde la media de la variable explicativa. 
